@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import * as React from 'https://aistudiocdn.com/react@^19.2.0';
 import { FileUploader } from './components/FileUploader';
 import { ResultsDisplay } from './components/ResultsDisplay';
 import { extractGiftCardInfo } from './services/geminiService';
@@ -6,42 +6,24 @@ import type { GiftCardData } from './types';
 import { Icon } from './components/icons';
 
 const App: React.FC = () => {
-  const [apiKey, setApiKey] = useState<string>('');
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [results, setResults] = useState<GiftCardData[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [selectedFiles, setSelectedFiles] = React.useState<File[]>([]);
+  const [results, setResults] = React.useState<GiftCardData[]>([]);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
-  useEffect(() => {
-    const storedApiKey = localStorage.getItem('gemini-api-key');
-    if (storedApiKey) {
-      setApiKey(storedApiKey);
-    }
-  }, []);
-
-  const handleApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newKey = e.target.value;
-    setApiKey(newKey);
-    localStorage.setItem('gemini-api-key', newKey);
-  };
-
-  const handleFilesSelected = useCallback((files: File[]) => {
+  const handleFilesSelected = React.useCallback((files: File[]) => {
     setSelectedFiles(prevFiles => [...prevFiles, ...files]);
     setError(null);
   }, []);
 
-  const clearFiles = useCallback(() => {
+  const clearFiles = React.useCallback(() => {
     setSelectedFiles([]);
     setResults([]);
     setError(null);
   }, []);
 
-  const processImages = useCallback(async () => {
+  const processImages = React.useCallback(async () => {
     if (selectedFiles.length === 0) return;
-    if (!apiKey) {
-      setError("請先輸入您的 Gemini API 金鑰。");
-      return;
-    }
 
     setIsLoading(true);
     setError(null);
@@ -58,7 +40,8 @@ const App: React.FC = () => {
 
     for (const file of selectedFiles) {
         try {
-            const extracted = await extractGiftCardInfo(file, apiKey);
+            // FIX: The API key is now handled by geminiService, no need to pass it.
+            const extracted = await extractGiftCardInfo(file);
             setResults(prev => prev.map(item => 
                 item.id === `${file.name}-${file.lastModified}` 
                 ? { ...item, ...extracted, status: 'success' } 
@@ -76,15 +59,16 @@ const App: React.FC = () => {
     }
 
     setIsLoading(false);
-  }, [selectedFiles, apiKey]);
+  }, [selectedFiles]);
 
-  const progress = useMemo(() => {
+  const progress = React.useMemo(() => {
     if (results.length === 0) return 0;
     const completed = results.filter(r => r.status === 'success' || r.status === 'error').length;
     return Math.round((completed / results.length) * 100);
   }, [results]);
 
-  const isProcessButtonDisabled = isLoading || selectedFiles.length === 0 || !apiKey;
+  // FIX: Removed apiKey from disabled logic.
+  const isProcessButtonDisabled = isLoading || selectedFiles.length === 0;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -103,25 +87,8 @@ const App: React.FC = () => {
                     使用 AI 技術，快速從圖片中讀取序號與密碼，告別手動輸入的繁瑣。
                 </p>
             </div>
-            
-            <div className="w-full bg-white p-6 border border-slate-200 rounded-xl shadow-sm">
-              <label htmlFor="api-key" className="block text-sm font-medium text-slate-700">Gemini API 金鑰</label>
-              <input
-                type="password"
-                id="api-key"
-                value={apiKey}
-                onChange={handleApiKeyChange}
-                placeholder="在此貼上您的 API 金鑰"
-                className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500"
-              />
-              <p className="mt-2 text-xs text-slate-500">
-                您的金鑰將只會儲存在您的瀏覽器中，不會上傳到任何伺服器。
-                <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-sky-600 hover:underline ml-1">
-                  點此獲取金鑰
-                </a>
-              </p>
-            </div>
           
+            {/* FIX: Removed API key input section to comply with guidelines. */}
             <FileUploader onFilesSelected={handleFilesSelected} clearFiles={clearFiles} selectedFiles={selectedFiles} />
 
             {error && (
@@ -136,7 +103,6 @@ const App: React.FC = () => {
                     onClick={processImages}
                     disabled={isProcessButtonDisabled}
                     className="w-full md:w-auto flex items-center justify-center gap-3 px-8 py-4 text-lg font-semibold text-white bg-sky-600 rounded-xl shadow-lg hover:bg-sky-700 disabled:bg-slate-400 disabled:cursor-not-allowed transform hover:scale-105 transition-all duration-300 ease-in-out"
-                    title={!apiKey ? '請先輸入 API 金鑰' : ''}
                 >
                 {isLoading ? (
                     <>
