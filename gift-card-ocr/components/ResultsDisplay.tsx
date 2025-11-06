@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import * as React from 'https://aistudiocdn.com/react@^19.2.0';
 import type { GiftCardData } from '../types';
 import { Icon } from './icons';
 
@@ -7,9 +7,9 @@ interface ResultsDisplayProps {
 }
 
 const CopyButton: React.FC<{ textToCopy: string }> = ({ textToCopy }) => {
-    const [copied, setCopied] = useState(false);
+    const [copied, setCopied] = React.useState(false);
 
-    const handleCopy = useCallback(() => {
+    const handleCopy = React.useCallback(() => {
         navigator.clipboard.writeText(textToCopy).then(() => {
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
@@ -31,7 +31,7 @@ const CopyButton: React.FC<{ textToCopy: string }> = ({ textToCopy }) => {
 
 export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ data }) => {
 
-    const copyAllAsTSV = useCallback(() => {
+    const copyAllAsTSV = React.useCallback(() => {
         const header = "檔案名稱\t序號\t密碼\n";
         const rows = data.map(item => `${item.fileName}\t${item.serialNumber}\t${item.password}`).join('\n');
         navigator.clipboard.writeText(header + rows);
