@@ -17,7 +17,15 @@
 </head>
   <body class="bg-slate-50 text-slate-800">
     <div id="root"></div>
-    <!-- Add the entry point script, marked for Babel to transpile -->
-    <script type="text/babel" data-type="module" src="./index.tsx"></script>
+    <!-- 
+      Configure Babel to use the classic React runtime and TypeScript preset.
+      This resolves the "react/jsx-runtime" module loading issue in this setup.
+    -->
+    <script
+      type="text/babel"
+      data-type="module"
+      src="./index.tsx"
+      data-presets='[["@babel/preset-react", { "runtime": "classic" }], "@babel/preset-typescript"]'
+    ></script>
   </body>
 </html>
