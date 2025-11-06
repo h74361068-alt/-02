@@ -1,4 +1,4 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI, Type } from "https://aistudiocdn.com/@google/genai@^1.29.0";
 import type { GiftCardData } from '../types';
 
 const fileToGenerativePart = async (file: File) => {
@@ -20,11 +20,10 @@ const fileToGenerativePart = async (file: File) => {
   };
 };
 
-export const extractGiftCardInfo = async (imageFile: File, apiKey: string): Promise<Partial<GiftCardData>> => {
-  if (!apiKey) {
-    throw new Error("Gemini API 金鑰未設定。");
-  }
-  const ai = new GoogleGenAI({ apiKey: apiKey });
+// FIX: The API key must be obtained exclusively from the environment variable `process.env.API_KEY`.
+export const extractGiftCardInfo = async (imageFile: File): Promise<Partial<GiftCardData>> => {
+  // FIX: Initialize GoogleGenAI with API key from environment variable, as per guidelines.
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
   const imagePart = await fileToGenerativePart(imageFile);
   const prompt = "請從這張圖片中提取點數卡的序號和密碼。序號通常標示為 '序號' 或 'SN'。密碼通常標示為 '密碼'、'Password' 或 'PIN'。如果找不到特定欄位，請回傳空字串。";
@@ -60,7 +59,8 @@ export const extractGiftCardInfo = async (imageFile: File, apiKey: string): Prom
   } catch (error) {
     console.error("Error processing image with Gemini:", error);
     if (error instanceof Error && error.message.includes('API key not valid')) {
-        throw new Error("提供的 API 金鑰無效，請檢查後再試。");
+        // FIX: Update error message to reflect API key is from environment.
+        throw new Error("環境變數中的 API 金鑰無效。");
     }
     throw new Error("AI 模型處理圖片時發生錯誤。");
   }
