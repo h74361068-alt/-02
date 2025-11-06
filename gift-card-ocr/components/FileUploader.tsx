@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import * as React from 'https://aistudiocdn.com/react@^19.2.0';
 import { Icon } from './icons';
 
 interface FileUploaderProps {
@@ -8,15 +8,15 @@ interface FileUploaderProps {
 }
 
 export const FileUploader: React.FC<FileUploaderProps> = ({ onFilesSelected, clearFiles, selectedFiles }) => {
-  const [isDragging, setIsDragging] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = React.useState(false);
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
-  const handleDrag = useCallback((e: React.DragEvent) => {
+  const handleDrag = React.useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
   }, []);
 
-  const handleDragIn = useCallback((e: React.DragEvent) => {
+  const handleDragIn = React.useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
@@ -24,18 +24,19 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ onFilesSelected, cle
     }
   }, []);
 
-  const handleDragOut = useCallback((e: React.DragEvent) => {
+  const handleDragOut = React.useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
+  const handleDrop = React.useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const newFiles = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+      // FIX: Explicitly type `file` as `File` to resolve TypeScript error.
+      const newFiles = Array.from(e.dataTransfer.files).filter((file: File) => file.type.startsWith('image/'));
       onFilesSelected(newFiles);
       e.dataTransfer.clearData();
     }
@@ -43,7 +44,8 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ onFilesSelected, cle
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const newFiles = Array.from(e.target.files).filter(file => file.type.startsWith('image/'));
+      // FIX: Explicitly type `file` as `File` to resolve TypeScript error.
+      const newFiles = Array.from(e.target.files).filter((file: File) => file.type.startsWith('image/'));
       onFilesSelected(newFiles);
     }
   };
